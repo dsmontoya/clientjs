@@ -1229,7 +1229,7 @@
   };
 
   ClientJS.prototype.getGraphicsDriverVendor = function(){
-    var gl = this.createWebglCanvas();
+    var gl = this.createWebGLCanvas();
     if(!gl) return '';
     var debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
     if (!debugInfo) return '';
@@ -1239,7 +1239,7 @@
   };
 
   ClientJS.prototype.getGraphicsDriverRenderer = function(){
-    var gl = this.createWebglCanvas();
+    var gl = this.createWebGLCanvas();
     if(!gl) return '';
     var debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
     if (!debugInfo) return '';
