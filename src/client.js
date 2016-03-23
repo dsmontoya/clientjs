@@ -77,40 +77,13 @@
   };
 
   /**
-   * Return a 32-bit integer representing the browsers fingerprint.
-   *
-   * @this ClientJS
-   * @return {int} The unique browser fingerprint.
-   */
-  ClientJS.prototype.getFingerprint = function () {
-    var bar = '|';
-
-    var userAgent = this._parser.ua;
-    var screenPrint = this.getScreenPrint();
-    var pluginList = this.getPlugins();
-    var fontList = this.getFonts();
-    var localStorage = this.hasLocalStorage();
-    var sessionStorage = this.hasSessionStorage();
-    var timeZone = this.getTimeZone();
-    var language = this.getLanguage();
-    var systemLanguage = this.getSystemLanguage();
-    var cookies = this.hasCookies();
-    var canvasPrint = this.getCanvasPrint();
-
-    var key = userAgent + bar + screenPrint + bar + pluginList + bar + fontList + bar + localStorage + bar + sessionStorage + bar + timeZone + bar + language + bar + systemLanguage + bar + cookies + bar + canvasPrint;
-    var seed = 256;
-
-    return murmurhash3_32_gc(key, seed);
-  };
-
-  /**
    * Return a string representing the browsers fingerprint.
    *
    * @this ClientJS
    * @param {Object} options to be triggered.
    * @param {Function} Called when generator is done and returns the fingerprint and datapoints used.
    */
-  ClientJS.prototype.getFingerprintAsync = function (newOptions, callback) {
+  ClientJS.prototype.getFingerprint = function (newOptions, callback) {
     var bar = '|';
     var key = '';
     var _this = this;
@@ -131,25 +104,6 @@
 
       callback(ctph.digest(key), datapoints);
     });
-  };
-
-  // Get Custom Fingerprint.
-  /**
-   * Takes an string array of data points and return a fingerprint.
-   *
-   * @this ClientJS
-   * @param {...string} arg - The data points used to calculate the fingerprint.
-   * @return {int} The unique browser fingerprint.
-   */
-  ClientJS.prototype.getCustomFingerprint = function (arg) {
-    var bar = '|';
-    var key = '';
-    var args = Array.prototype.slice.call(arguments);
-    for (var i = 0; i < args.length; i++) {
-      key += args[i] + bar;
-    }
-
-    return murmurhash3_32_gc(key, 256);
   };
 
   ClientJS.prototype.getAsyncOptions = function (datapoints, callback) {

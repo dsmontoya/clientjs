@@ -277,185 +277,145 @@ describe('ClientJS', function () {
       });
     });
 
-    describe('Fingerprint generators', function () {
-      var fingerprint;
-      beforeEach(function () {
-        fingerprint = client.getFingerprint();
-      });
-
-      describe('#getFingerPrint', function () {
-        it('should return a Number', function () {
-          expect(fingerprint).toEqual(jasmine.any(Number));
-        });
-
-        var secondFingerprint;
-        it('should be consistent', function () {
-          secondFingerprint = client.getFingerprint();
-          expect(fingerprint).toEqual(secondFingerprint);
+    describe('#getFingerprint', function () {
+      var fp;
+      var dp;
+      beforeEach(function(done){
+        client.getFingerprint({},function (fingerprint, datapoints) {
+          fp = fingerprint;
+          dp = datapoints;
+          done();
         });
       });
 
-      describe('#getFingerprintAsync', function () {
-        var fp;
-        var dp;
-        beforeEach(function(done){
-          client.getFingerprintAsync({},function (fingerprint, datapoints) {
-            fp = fingerprint;
+      describe('fingerprint', function () {
+        it('should return a String', function () {
+          expect(fp).toEqual(jasmine.any(String));
+        });
+      });
+
+      describe('datapoints', function () {
+        it('should not include getIPAddresses by default', function () {
+          expect(dp.getIPAddresses).toBeUndefined();
+        });
+
+        it('should not include getMediaDevices by default', function () {
+          expect(dp.getMediaDevices).toBeUndefined();
+        });
+
+        it('should include getIPAddresses if added to the options', function (done) {
+          client.getFingerprint({getIPAddresses: true},function (fingerprint, datapoints) {
             dp = datapoints;
+            expect(dp.getIPAddresses).not.toBeUndefined();
             done();
           });
         });
 
-        describe('fingerprint', function () {
-          it('should return a String', function () {
-            expect(fp).toEqual(jasmine.any(String));
-          });
-        });
-
-        describe('datapoints', function () {
-          it('should not include getIPAddresses by default', function () {
-            expect(dp.getIPAddresses).toBeUndefined();
-          });
-
-          it('should not include getMediaDevices by default', function () {
-            expect(dp.getMediaDevices).toBeUndefined();
-          });
-
-          it('should include getIPAddresses if added to the options', function (done) {
-            client.getFingerprintAsync({getIPAddresses: true},function (fingerprint, datapoints) {
-              dp = datapoints;
-              expect(dp.getIPAddresses).not.toBeUndefined();
-              done();
-            });
-          });
-
-          it('should include getMediaDevices if added to the options', function (done) {
-            client.getFingerprintAsync({getMediaDevices: true},function (fingerprint, datapoints) {
-              dp = datapoints;
-              expect(dp.getMediaDevices).not.toBeUndefined();
-              done();
-            });
-          });
-        });
-
-        describe("similarity", function(){
-          it('should be greater than 90 and less than 100 with different user agent', function (done) {
-            var newFingerprint;
-
-            client.getUserAgent = jasmine.createSpy().and.returnValue('foo')
-
-            client.getFingerprintAsync({},function (fingerprint, datapoints) {
-              newFingerprint = fingerprint;
-              var similarity = ctph.similarity(newFingerprint, fp);
-              expect(similarity).toBeGreaterThan(90);
-              //expect(similarity).toBeLessThan(100); //Opera allways returns 100 here
-              done();
-            });
-          });
-
-          it('should be greater than 17 and less than 35.1 with different canvas fingerprint', function () {
-            var vars = {};
-
-            vars.cp1 = client.getCanvasPrint('Fo0!');
-            vars.cp2 = client.getCanvasPrint('BaR?');
-
-            for (var i = 1; i <= 2; i++) {
-              client.getCanvasPrint = jasmine.createSpy().and.returnValue(vars['cp' + i]);
-
-              client.getFingerprintAsync({}, function (fingerprint, datapoints) {
-                vars['fp' + i] = fingerprint;
-              });
-            }
-
-            var similarity = ctph.similarity(vars.fp1, vars.fp2)
-            expect(similarity).toBeGreaterThan(17);
-            expect(similarity).toBeLessThan(35.1);
-          });
-
-          it('should be greater than 97 and less than 100 with different language', function () {
-            var newFingerprint;
-            client.getLanguage = jasmine.createSpy().and.returnValue('en');
-
-            client.getFingerprintAsync({}, function (fingerprint, datapoints) {
-              newFingerprint = fingerprint;
-            });
-
-            var similarity = ctph.similarity(fp, newFingerprint);
-
-            expect(similarity).toBeGreaterThan(97);
-            expect(similarity).toBeLessThan(100);
-          });
-
-          it('should be greater than 95 and less than 100 with different graphics driver info', function () {
-            var newFingerprint;
-            client.getGraphicsDriverInfo = jasmine.createSpy().and.returnValue('Graphics Driver Vendor XYZ 1234N Graphics Driver Vendor XYZ 1234N Graphics Driver Vendor XYZ 1234N Graphics Driver Vendor XYZ 1234N Graphics Driver');
-
-            client.getFingerprintAsync({}, function (fingerprint, datapoints) {
-              newFingerprint = fingerprint;
-              var similarity = ctph.similarity(fp, newFingerprint);
-
-              expect(similarity).toBeGreaterThan(95);
-              expect(similarity).toBeLessThan(100);
-            });
-          });
-
-          it('should be greater than 94 and less than 100 with two media devices more', function (done) {
-            var newFingerprint;
-            var mediaDevices;
-
-            client.getMediaDevices(function (md) {
-              mediaDevices = md;
-            });
-
-            client.getMediaDevicesOption = jasmine.createSpy().and.callFake(function(callback){
-              callback(mediaDevices + 'audioinput:undefined#17672367228;videoinput:undefined#6909382487');
-            });
-
-            client.getFingerprintAsync({},function (fingerprint) {
-              newFingerprint = fingerprint;
-              var similarity = ctph.similarity(fp, newFingerprint);
-              expect(similarity).toBeGreaterThan(94);
-              expect(similarity).toBeLessThan(100);
-              done()
-            });
-          });
-
-          it('should be greater than 94 and less than 100 with different media devices', function (done) {
-            var newFingerprint;
-
-            client.getMediaDevicesOption = jasmine.createSpy().and.callFake(function(callback){
-              callback('videoinput:undefined#EFVEeRjv7CGKNsmS0IyLOMkmlHnYNV8vAmTD8KX+GLg=;audioinput:undefined#V3ZmhtoZdYJDiaTlEDWy+FVvGtbvPOviGvGh3UgEkxk=;audioinput:undefined#kFtf600O1esdlq2m0aam+8EDe+V7TYmX9eZ6FmNAels=;audioinput:undefined#UOePYGe9MR/zaA23ZjSOT3QH1OG63Lz4CW5YfB7lct0=;');
-            });
-
-            client.getFingerprintAsync({},function (fingerprint) {
-              newFingerprint = fingerprint;
-              var similarity = ctph.similarity(fp, newFingerprint);
-              expect(similarity).toBeGreaterThan(94);
-              expect(similarity).toBeLessThan(100);
-              done()
-            });
+        it('should include getMediaDevices if added to the options', function (done) {
+          client.getFingerprint({getMediaDevices: true},function (fingerprint, datapoints) {
+            dp = datapoints;
+            expect(dp.getMediaDevices).not.toBeUndefined();
+            done();
           });
         });
       });
 
-      describe('#getCustomFingerprint', function () {
-        var customFingerprint;
-        beforeEach(function () {
-          customFingerprint = client.getCustomFingerprint('custom', 'fingerprint');
+      describe("similarity", function(){
+        it('should be greater than 90 and less than 100 with different user agent', function (done) {
+          var newFingerprint;
+
+          client.getUserAgent = jasmine.createSpy().and.returnValue('foo')
+
+          client.getFingerprint({},function (fingerprint, datapoints) {
+            newFingerprint = fingerprint;
+            var similarity = ctph.similarity(newFingerprint, fp);
+            expect(similarity).toBeGreaterThan(90);
+            //expect(similarity).toBeLessThan(100); //Opera allways returns 100 here
+            done();
+          });
         });
 
-        it('should return a Number', function () {
-          expect(customFingerprint).toEqual(jasmine.any(Number));
+        it('should be greater than 17 and less than 35.1 with different canvas fingerprint', function () {
+          var vars = {};
+
+          vars.cp1 = client.getCanvasPrint('Fo0!');
+          vars.cp2 = client.getCanvasPrint('BaR?');
+
+          for (var i = 1; i <= 2; i++) {
+            client.getCanvasPrint = jasmine.createSpy().and.returnValue(vars['cp' + i]);
+
+            client.getFingerprint({}, function (fingerprint, datapoints) {
+              vars['fp' + i] = fingerprint;
+            });
+          }
+
+          var similarity = ctph.similarity(vars.fp1, vars.fp2)
+          expect(similarity).toBeGreaterThan(17);
+          expect(similarity).toBeLessThan(35.1);
         });
 
-        it('should not generate the same fingerprint than getCustomFingerprint', function () {
-          expect(customFingerprint).not.toEqual(fingerprint);
+        it('should be greater than 97 and less than 100 with different language', function () {
+          var newFingerprint;
+          client.getLanguage = jasmine.createSpy().and.returnValue('en');
+
+          client.getFingerprint({}, function (fingerprint, datapoints) {
+            newFingerprint = fingerprint;
+          });
+
+          var similarity = ctph.similarity(fp, newFingerprint);
+
+          expect(similarity).toBeGreaterThan(97);
+          expect(similarity).toBeLessThan(100);
         });
 
-        //Fix to https://github.com/jackspirou/clientjs/issues/19
-        it('should not ignore the last argument', function () {
-          var newCustomFingerprint = client.getCustomFingerprint('custom', 'fingerprint :)');
-          expect(customFingerprint).not.toEqual(newCustomFingerprint);
+        it('should be greater than 95 and less than 100 with different graphics driver info', function () {
+          var newFingerprint;
+          client.getGraphicsDriverInfo = jasmine.createSpy().and.returnValue('Graphics Driver Vendor XYZ 1234N Graphics Driver Vendor XYZ 1234N Graphics Driver Vendor XYZ 1234N Graphics Driver Vendor XYZ 1234N Graphics Driver');
+
+          client.getFingerprint({}, function (fingerprint, datapoints) {
+            newFingerprint = fingerprint;
+            var similarity = ctph.similarity(fp, newFingerprint);
+
+            expect(similarity).toBeGreaterThan(95);
+            expect(similarity).toBeLessThan(100);
+          });
+        });
+
+        it('should be greater than 94 and less than 100 with two media devices more', function (done) {
+          var newFingerprint;
+          var mediaDevices;
+
+          client.getMediaDevices(function (md) {
+            mediaDevices = md;
+          });
+
+          client.getMediaDevicesOption = jasmine.createSpy().and.callFake(function(callback){
+            callback(mediaDevices + 'audioinput:undefined#17672367228;videoinput:undefined#6909382487');
+          });
+
+          client.getFingerprint({},function (fingerprint) {
+            newFingerprint = fingerprint;
+            var similarity = ctph.similarity(fp, newFingerprint);
+            expect(similarity).toBeGreaterThan(94);
+            expect(similarity).toBeLessThan(100);
+            done()
+          });
+        });
+
+        it('should be greater than 94 and less than 100 with different media devices', function (done) {
+          var newFingerprint;
+
+          client.getMediaDevicesOption = jasmine.createSpy().and.callFake(function(callback){
+            callback('videoinput:undefined#EFVEeRjv7CGKNsmS0IyLOMkmlHnYNV8vAmTD8KX+GLg=;audioinput:undefined#V3ZmhtoZdYJDiaTlEDWy+FVvGtbvPOviGvGh3UgEkxk=;audioinput:undefined#kFtf600O1esdlq2m0aam+8EDe+V7TYmX9eZ6FmNAels=;audioinput:undefined#UOePYGe9MR/zaA23ZjSOT3QH1OG63Lz4CW5YfB7lct0=;');
+          });
+
+          client.getFingerprint({},function (fingerprint) {
+            newFingerprint = fingerprint;
+            var similarity = ctph.similarity(fp, newFingerprint);
+            expect(similarity).toBeGreaterThan(94);
+            expect(similarity).toBeLessThan(100);
+            done()
+          });
         });
       });
     });
