@@ -903,7 +903,7 @@
    * @return {string} The version of Silverlight installed.
    */
   ClientJS.prototype.getSilverlightVersion = function () {
-    if (this.isSilverlight()) {
+    if (this.hasSilverlight()) {
       var objPlugin = navigator.plugins['Silverlight Plug-In'];
       return objPlugin.description;
     }
