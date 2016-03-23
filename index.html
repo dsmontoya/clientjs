@@ -84,7 +84,6 @@
   								<a href="#Fingerprints">Fingerprint Methods</a>
   								<ul class="nav">
   									<li><a href="#Fingerprint-getFingerprint">getFingerprint()</a></li>
-										<li><a href="#Fingerprint-getCustomFingerprint">getCustomFingerprint()</a></li>
   								</ul>
   							</li>
   							<li>
@@ -343,7 +342,9 @@
 
 	<span class="nt">var client = <span class="s">new ClientJS();</span> // Create A New Client Object</span>
 
-	<span class="nt">var fingerprint = <span class="s">client.getFingerprint();</span> // Calculate Device/Browser Fingerprint</span>
+	<span class="nt">var fingerprint = <span class="s">client.getFingerprint({getIPAddresses: true}, function(fp, dp){
+
+	});</span> // Calculate Device/Browser Fingerprint</span>
 
 	<span class="nt">alert( fingerprint );</span>
 
@@ -401,15 +402,16 @@
   						<br />
 
   						<h3 id="Fingerprint-getFingerprint">getFingerprint()</h3>
-  						<p class="lead">Get Fingerprint.  Return a 32-bit integer representing the browsers fingerprint.</p>
+  						<p class="lead">Get Fingerprint.  Return a string representing the browsers fingerprint.</p>
   						<div class="highlight"><pre><code class="html">
 <span class="nt">&lt;script&gt;</span>
 
 	<span class="nt">var client = <span class="s">new ClientJS();</span> // Create A New Client Object</span>
 
-	<span class="nt">var fingerprint = <span class="s">client.getFingerprint();</span> // Get Client's Fingerprint</span>
-
-	<span class="nt">console.log( fingerprint );</span>
+	<span class="nt">var fingerprint;</span>
+	<span class="s">client.getFingerprint({getIPAddresses: true}, function(fingerprint, datapoints){</span>
+		<span class="nt">console.log( fingerprint ); // Get Client's Fingerprint</span>
+	<span class="s">});</span>
 
 <span class="nt">&lt;/script&gt;</span>
   						</code></pre></div>
@@ -418,27 +420,6 @@
   							<p id="getFingerprint"></p>
   						</div>
 							<br />
-
-  						<h3 id="Fingerprint-getCustomFingerprint">getCustomFingerprint()</h3>
-  						<p class="lead">Get Custom Fingerprint.  Take a string of datapoints and return a 32-bit integer representing the browsers fingerprint.</p>
-  						<div class="highlight"><pre><code class="html">
-<span class="nt">&lt;script&gt;</span>
-
-	<span class="nt">var client = <span class="s">new ClientJS();</span> // Create A New Client Object</span>
-	<span class="nt">var ua = <span class="s">client.getBrowserData().ua;</span></span>
-	<span class="nt">var canvasPrint = <span class="s">client.getCanvasPrint();</span></span>
-
-	<span class="nt">var fingerprint = <span class="s">client.getCustomFingerprint(ua, canvasPrint);</span>
-
-	<span class="nt">console.log( fingerprint );</span>
-
-<span class="nt">&lt;/script&gt;</span>
-  						</code></pre></div>
-  						<div class="bs-callout bs-callout-info">
-  							<h4>Your Result:</h4>
-  							<p id="getCustomFingerprint"></p>
-  						</div>
-  					</div>
 
 					<!-- USER AGENT METHDOS -->
 
@@ -1787,16 +1768,18 @@
     <script src="js/client.min.js"></script>
     <script>
 
+		var client = new ClientJS();
     	var client = new ClientJS();
-    	var fingerprint = client.getFingerprint();
+
+			client.getFingerprint({getIPAddresses: true, getMediaDevices: true}, function (fp, dp) {
+				console.log(fp)
+				$('#title-fingerprint').text(fp);
+	    	$('#getFingerprint').text(fp);
+			});
 
     	$('#getSoftwareVersion').text(client.getVersion());
-
-    	$('#title-fingerprint').text(fingerprint);
-    	$('#getFingerprint').text(fingerprint);
 			var ua = client.getParser().ua;
 			var canvasprint = client.getCanvasPrint();
-			$('#getCustomFingerprint').text(client.getCustomFingerprint(ua, canvasprint));
 
     	$('#getUserAgent').text(client.getUserAgent());
     	$('#getUserAgentLowerCase').text(client.getUserAgentLowerCase());
