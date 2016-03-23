@@ -873,7 +873,7 @@
    * @return {string} The version of Flash installed.
    */
   ClientJS.prototype.getFlashVersion = function () {
-    if (this.isFlash()) {
+    if (this.hasFlash()) {
       objPlayerVersion = swfobject.getFlashPlayerVersion();
       return objPlayerVersion.major + '.' + objPlayerVersion.minor + '.' + objPlayerVersion.release;
     }
