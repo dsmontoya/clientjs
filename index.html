@@ -194,7 +194,7 @@
   							<li>
   								<a href="#Font">Font Methods</a>
   								<ul class="nav">
-  									<li><a href="#Font-hasFont">hasFont(font)</a></li>
+  									<li><a href="#Font-hasFonts">hasFonts(font)</a></li>
   									<li><a href="#Font-getFonts">getFonts()</a></li>
   								</ul>
   							</li>
@@ -203,7 +203,7 @@
   								<ul class="nav">
   									<li><a href="#Storage-hasLocalStorage">hasLocalStorage()</a></li>
   									<li><a href="#Storage-hasSessionStorage">hasSessionStorage()</a></li>
-  									<li><a href="#Storage-hasCookie">hasCookie()</a></li>
+  									<li><a href="#Storage-hasCookies">hasCookies()</a></li>
   								</ul>
   							</li>
   							<li>
@@ -1858,12 +1858,12 @@
     	$('#hasMimeTypes').text(client.hasMimeTypes());
     	$('#getMimeTypes').text(client.getMimeTypes());
 
-    	$('#hasFont').text(client.hasFont("Times New Roman"));
+    	$('#hasFonts').text(client.hasFonts("Times New Roman"));
     	$('#getFonts').text(client.getFonts());
 
     	$('#hasLocalStorage').text(client.hasLocalStorage());
     	$('#hasSessionStorage').text(client.hasSessionStorage());
-    	$('#hasCookie').text(client.hasCookie());
+    	$('#hasCookies').text(client.hasCookies());
 
     	$('#getTimeZone').text(client.getTimeZone());
 
